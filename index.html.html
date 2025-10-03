@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق البحث</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            direction: rtl;
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #7f8c8d;
+        }
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            outline: none;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        .search-box:focus {
+            border-color: #3498db;
+        }
+        .autocomplete-suggestions {
+            margin-top: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: #fff;
+            width: 100%;
+            text-align: right;
+            overflow-y: auto;
+            max-height: 200px;
+            display: none;
+        }
+        .suggestion {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .suggestion:last-child {
+            border-bottom: none;
+        }
+        .suggestion:hover {
+            background: #f8f9fa;
+        }
+        .card {
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            width: 100%;
+            text-align: right;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .card p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .no-results {
+            color: #e74c3c;
+            margin-top: 15px;
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>تطبيق البحث</h1>
+            <p>ابحث عن اسم في القائمة أدناه</p>
+        </div>
+        <input type="text" id="searchInput" class="search-box" placeholder="اكتب اسم للبحث...">
+        <div id="suggestions" class="autocomplete-suggestions"></div>
+        <div id="noResults" class="no-results">لم يتم العثور على نتائج</div>
+        <div id="resultCard" class="card"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function searchData() {
+            let input = document.getElementById('searchInput').value.trim();
+            let suggestions = document.getElementById('suggestions');
+            let resultCard = document.getElementById('resultCard');
+            let noResults = document.getElementById('noResults');
+            
+            suggestions.innerHTML = "";
+            resultCard.style.display = "none";
+            noResults.style.display = "none";
+            
+            if (input.length === 0) {
+                suggestions.style.display = "none";
+                return;
+            }
+            
+            // البحث مع تجاهل التشكيل والحروف المتشابهة
+            let filtered = data.filter(item => 
+                item["الاسم"].toLowerCase().includes(input.toLowerCase())
+            );
+            
+            if (filtered.length > 0) {
+                suggestions.style.display = "block";
+                
+                filtered.forEach(item => {
+                    let div = document.createElement("div");
+                    div.classList.add("suggestion");
+                    div.innerText = item["الاسم"];
+                    div.onclick = function() {
+                        showResult(item);
+                    };
+                    suggestions.appendChild(div);
+                });
+            } else {
+                noResults.style.display = "block";
+                suggestions.style.display = "none";
+            }
+        }
+        
+        function showResult(item) {
+            let resultCard = document.getElementById('resultCard');
+            let suggestions = document.getElementById('suggestions');
+            
+            resultCard.innerHTML = `
+                <h3>${item["الاسم"]}</h3>
+                <p><strong>الرقم:</strong> ${item["الرقم"]}</p>
+            `;
+            
+            resultCard.style.display = "block";
+            suggestions.style.display = "none";
+            document.getElementById('searchInput').value = item["الاسم"];
+        }
+        
+        // إخفاء الاقتراحات عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion')) {
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
+        
+        // تهيئة البحث عند تحميل الصفحة
+        document.getElementById('searchInput').addEventListener('input', searchData);
+    </script>
+</body>
+</html>
